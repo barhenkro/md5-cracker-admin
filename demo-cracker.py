@@ -7,7 +7,7 @@ import msvcrt
 gets a connected socket and send keep alive message
 """
 
-keep_alive_msg = "keep alive"
+keep_alive_msg = "keep-alive"
 server_ip = '127.0.0.1'
 server_port = 4320
 name_msg = "name: barhen"
@@ -25,9 +25,20 @@ def keep_alive(soc):
 def communicate(soc):
     msg = soc.recv(1024)
     if msg.startswith("start"):
-        soc.send(cracked_md5)
+        if cracked_md5 == false_cracked_md5:
+            soc.send('not found')
+        else:
+            soc.send("found: "+cracked_md5)
     if msg == 'bye':
         soc.close()
+
+
+def input_thread():
+    msg = raw_input()
+    if msg == 'true':
+        global cracked_md5
+        cracked_md5 = right_cracked_md5
+
 
 
 def main():
@@ -35,11 +46,8 @@ def main():
     client.connect((server_ip, server_port))
     client.send(name_msg)
     Thread(target=keep_alive, args=(client,)).start()
+    Thread(target=input_thread).start()
     while True:
-        if msvcrt.kbhit() and msvcrt.getwch() == 't':
-            print 't'
-            cracked_md5 = right_cracked_md5
-
         communicate(client)
 
 
