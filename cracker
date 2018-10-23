@@ -1,0 +1,16 @@
+import socket
+import time
+
+
+class Cracker:
+    def __init__(self,socket):
+        self.name = ''
+        self.socket = socket
+        self.chunk = None
+        self.alive = time.time()
+
+    def send(self):
+        return self.socket.send()
+
+    def recv(self):
+        return self.socket.recv()
