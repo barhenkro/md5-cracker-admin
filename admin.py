@@ -55,9 +55,17 @@ class Admin(object):
     def keep_thread(self):
         for c in self.crackers:
             if (time.time() - c.alive > 3):
-                self.chunks.append(c.chunk)
-                self.chunks.remove(c)
-                del c
+                sht = 1
+                for k in self.crackers:
+                    if k.chunk == None:
+                        k.chunk = c.chunk
+                        k.send(self.__format_string(k))
+                        sht = 0
+                        break
+                if sht:
+                    self.chunks.append(c.chunk)
+                    self.chunks.remove(c)
+                    del c
 
     def communicate(self, cracker):
         msg = cracker.recv()
