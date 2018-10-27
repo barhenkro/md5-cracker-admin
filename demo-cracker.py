@@ -1,6 +1,7 @@
 import time
 from socket import socket
 from threading import Thread
+import sys
 import msvcrt
 
 """
@@ -12,7 +13,7 @@ server_ip = '127.0.0.1'
 server_port = 2212
 name_msg = "name: barhen"
 false_cracked_md5 = '7e56f7'
-right_cracked_md5 = '7e56f8'
+right_cracked_md5 = 'abcdef'
 cracked_md5 = false_cracked_md5
 
 
@@ -24,13 +25,18 @@ def keep_alive(soc):
 
 def communicate(soc):
     msg = soc.recv(1024)
+    print msg
     if msg.startswith("start"):
+        time.sleep(30)
         if cracked_md5 == false_cracked_md5:
+            print 'sending not found'
             soc.send('not found')
         else:
             soc.send("found: "+cracked_md5)
+            print 'sending found'
     if msg == 'bye':
-        soc.close()
+        # soc.close()
+        sys.exit()
 
 
 def input_thread():
