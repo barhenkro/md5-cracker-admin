@@ -9,7 +9,7 @@ gets a connected socket and send keep alive message
 
 keep_alive_msg = "keep-alive"
 server_ip = '127.0.0.1'
-server_port = 4320
+server_port = 2212
 name_msg = "name: barhen"
 false_cracked_md5 = '7e56f7'
 right_cracked_md5 = '7e56f8'
