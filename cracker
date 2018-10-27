@@ -1,4 +1,3 @@
-import socket
 import time
 
 
@@ -9,8 +8,8 @@ class Cracker:
         self.chunk = None
         self.alive = time.time()
 
-    def send(self):
-        return self.socket.send()
+    def send(self,s):
+        return self.socket.send(s)
 
     def recv(self):
-        return self.socket.recv()
+        return self.socket.recv(1024)
