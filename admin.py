@@ -7,8 +7,8 @@ import time
 class Admin(object):
     def __init__(self):
         self.crackers = []
-        self.md5_string = ""
-        self.chunks = self._divide()
+        self.md5_string = "abcdef"
+        self.chunks = self.__divide()
 
         self.server = socket.socket()
         self.server.bind(('127.0.0.1', 2212))
@@ -23,24 +23,26 @@ class Admin(object):
             start = chr(ord(start[0]) + 1) + start[1:]
         return lst
 
-    def __update_name(self, c, name):
-        c.name = name
-        self._find()
+    def __update_name(self, cracker, name):
+        cracker.name = name
+        self.__find(cracker)
 
     def __format_string(self, cracker):
-        start, stop = cracker.chunck
+        start, stop = cracker.chunk
         st = "start:" + start + ",stop:" + stop + ",md5:" + self.md5_string
         return st
 
     def __give_chunk(self, cracker):
         if len(self.chunks) > 0:
             cracker.chunk = self.chunks[0]
-            del self.chunk[0]
+            del self.chunks[0]
 
     def __find(self, cracker):
-        self.__give_chunk()
+        self.__give_chunk(cracker)
+        print cracker.chunk
         st = self.__format_string(cracker)
-        cracker.send(st)
+        print st
+        print cracker.send(st)
 
     def __check(self,cracker,what_found):
         if what_found==self.md5_string:
@@ -69,7 +71,9 @@ class Admin(object):
 
     def communicate(self, cracker):
         msg = cracker.recv()
+        print msg
         if msg.startswith("name:"):
+            
             index = msg.find(':') + 1
             name = msg[index:]
             self.__update_name(cracker, name)
