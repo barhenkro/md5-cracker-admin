@@ -35,7 +35,7 @@ def communicate(soc):
             soc.send("found: "+cracked_md5)
             print 'sending found'
     if msg == 'bye':
-        # soc.close()
+        soc.close()
         sys.exit()
 
 

@@ -10,9 +10,12 @@ class Admin(object):
         self.crackers = []
         self.md5_string = "abcdef"
         self.chunks = self.__divide()
+        self.answer = ''
+        self.found = False
 
         self.server = socket.socket()
         self.server.bind(('127.0.0.1', 2212))
+        self.server.settimeout(5)
         self.server.listen(5)
 
     def __divide(self):
@@ -41,13 +44,13 @@ class Admin(object):
     def __find(self, cracker):
         self.__give_chunk(cracker)
         if cracker.chunk != None:
-            print cracker.chunk
             st = self.__format_string(cracker)
-            print st
-            print cracker.send(st)
+            cracker.send(st)
 
     def __check(self,cracker,what_found):
-        if what_found==self.md5_string:
+        if md5.new(what_found).hexdigest()==self.md5_string:
+            self.answer = what_found
+            self.found = True
             cracker.send("ya melech")
             for i in self.crackers:
                 i.send("bye")
@@ -60,6 +63,7 @@ class Admin(object):
         while True:
             for c in self.crackers:
                 if (time.time() - c.alive > 3):
+                    print c.name,'was killed'
                     sht = 1
                     for k in self.crackers:
                         if k.chunk == None:
@@ -73,34 +77,42 @@ class Admin(object):
                     del c
 
     def communicate(self, cracker):
-        while True:
-            msg = cracker.recv()
-            print msg
-            if msg.startswith("name:"):
+        try:
+            while True:
+                msg = cracker.recv()
+                if(msg==''):
+                    continue
+                msg = msg.strip('keep-alive')
+                if msg.startswith("name:"):
+                    index = msg.find(':') + 1
+                    name = msg[index:]
+                    self.__update_name(cracker, name)
 
-                index = msg.find(':') + 1
-                name = msg[index:]
-                self.__update_name(cracker, name)
+                elif msg == 'not found':
+                    self.__find(cracker)
 
-            elif msg == 'not found':
-                self.__find(cracker)
+                elif msg.startswith("found:"):
+                    index = msg.find(':') + 2
+                    what_found = msg[index:]
+                    self.__check(cracker,what_found)
 
-            elif msg.startswith("found:"):
-                index = msg.find(':') + 2
-                what_found = msg[index:]
-                self.__check(cracker,what_found)
+                elif msg == '':
+                    cracker.alive = time.time()
 
-            elif msg == 'keep-alive':
-                cracker.alive = time.time()
-
-            else:
-                cracker.send('follow the protocol idiot')
+                else:
+                    cracker.send('follow the protocol idiot')
+        except:
+            pass
 
     def run(self):
-        while True:
-            (cracker_socket, cracker_ip) = self.server.accept()
-            c = Cracker(cracker_socket)
-            self.crackers.append(c)
-            t = threading.Thread(target=self.communicate, args=(c,))
-            t.start()
-
+        threading.Thread(target=self.keep_thread).start()
+        while not self.found:
+            try:
+                (cracker_socket, cracker_ip) = self.server.accept()
+                c = Cracker(cracker_socket)
+                self.crackers.append(c)
+                t = threading.Thread(target=self.communicate, args=(c,))
+                t.start()
+            except socket.timeout:
+                pass
+        return
