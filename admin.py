@@ -62,7 +62,8 @@ class Admin(object):
     def keep_thread(self):
         while True:
             for c in self.crackers:
-                if (time.time() - c.alive > 3):
+                if time.time() - c.alive > 3:
+                    print time.time() - c.alive
                     print c.name,'was killed'
                     sht = 1
                     for k in self.crackers:
@@ -101,8 +102,9 @@ class Admin(object):
 
                 else:
                     cracker.send('follow the protocol idiot')
-        except:
-            pass
+        except socket.error as msg:
+            print "disconnected from", cracker.name
+            print msg
 
     def run(self):
         threading.Thread(target=self.keep_thread).start()
