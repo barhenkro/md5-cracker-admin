@@ -8,6 +8,7 @@ class Cracker:
         self.socket = socket
         self.chunk = None
         self.alive = time.time()
+        self.socket.setblocking(1)
 
     def send(self,s):
         print 'sent to',self.name, s
