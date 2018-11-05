@@ -8,14 +8,15 @@ import md5
 class Admin(object):
     def __init__(self):
         self.crackers = []
-        self.md5_string = "abcdef"
+        self.md5_string = md5.new('caaaaa').hexdigest()
         self.chunks = self.__divide()
         self.answer = ''
         self.found = False
 
         self.server = socket.socket()
-        self.server.bind(('127.0.0.1', 2212))
+        self.server.bind(('0.0.0.0', 2212))
         self.server.settimeout(5)
+        self.server.setblocking(0)
         self.server.listen(5)
 
     def __divide(self):
@@ -48,26 +49,35 @@ class Admin(object):
             cracker.send(st)
 
     def __check(self,cracker,what_found):
+        # print what_found
         if md5.new(what_found).hexdigest()==self.md5_string:
+            print what_found, 'is indeed the answer'
             self.answer = what_found
             self.found = True
-            cracker.send("ya melech")
+            cracker.send("You are the king")
+            print 'len', len(self.crackers)
             for i in self.crackers:
-                i.send("bye")
+                i.send("bye") 
                 self.crackers.remove(i)
                 del i
+        else:
+            print what_found, "is not the answer"
 
 
 
     def keep_thread(self):
-        while True:
+        while not self.found:
             for c in self.crackers:
                 if time.time() - c.alive > 3:
+                    try:
+                        c.send('bye')
+                    except:
+                        pass
                     print time.time() - c.alive
                     print c.name,'was killed'
                     sht = 1
                     for k in self.crackers:
-                        if k.chunk == None:
+                        if k!=c and k.chunk == None:
                             k.chunk = c.chunk
                             k.send(self.__format_string(k))
                             sht = 0
@@ -79,11 +89,13 @@ class Admin(object):
 
     def communicate(self, cracker):
         try:
-            while True:
+            while not self.found:
                 msg = cracker.recv()
+                
                 if(msg==''):
-                    continue
-                msg = msg.strip('keep-alive')
+                    break
+                msg = msg.replace('keep-alive','')
+                # print msg, '_____________'
                 if msg.startswith("name:"):
                     index = msg.find(':') + 1
                     name = msg[index:]
@@ -93,8 +105,9 @@ class Admin(object):
                     self.__find(cracker)
 
                 elif msg.startswith("found:"):
-                    index = msg.find(':') + 2
+                    index = msg.find(':') + 1
                     what_found = msg[index:]
+                    # print msg, what_found
                     self.__check(cracker,what_found)
 
                 elif msg == '':
@@ -104,7 +117,7 @@ class Admin(object):
                     cracker.send('follow the protocol idiot')
         except socket.error as msg:
             print "disconnected from", cracker.name
-            print msg
+            # print msg
 
     def run(self):
         threading.Thread(target=self.keep_thread).start()
@@ -115,6 +128,5 @@ class Admin(object):
                 self.crackers.append(c)
                 t = threading.Thread(target=self.communicate, args=(c,))
                 t.start()
-            except socket.timeout:
+            except socket.error:
                 pass
-        return
