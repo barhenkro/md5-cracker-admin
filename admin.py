@@ -8,7 +8,7 @@ import md5
 class Admin(object):
     def __init__(self):
         self.crackers = []
-        self.md5_string = md5.new('caaaaa').hexdigest()
+        self.md5_string = md5.new('aabdef').hexdigest()
         self.chunks = self.__divide()
         self.answer = ''
         self.found = False
@@ -56,10 +56,11 @@ class Admin(object):
             self.found = True
             cracker.send("You are the king")
             print 'len', len(self.crackers)
+            
             for i in self.crackers:
-                i.send("bye") 
-                self.crackers.remove(i)
-                del i
+                i.send("bye")
+
+            self.crackers = []
         else:
             print what_found, "is not the answer"
 
