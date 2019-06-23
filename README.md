@@ -37,7 +37,7 @@ The server will send a new ranage at the same syntax as before:
 Once in 3 seconds the client need to send a messgae which indicates that the client is alive. th message looks as follows:
 >keep-alive
 
-## Author
+## Authors
 * @[animelech](https://github.com/animelech)
 * @[shakedzeltzer](https://github.com/shakedzeltzer)
 * @[barhenkro](https://github.com/barhenkro)
